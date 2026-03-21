@@ -2,22 +2,23 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor a Alfabeto Electrónico Universal</title>
+<title>Traductor de Alfabeto Electrónico</title>
 <style>
-    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-    textarea { width: 90%; max-width: 700px; height: 120px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
-    select, button { padding: 10px 20px; font-size: 1.2em; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; margin: 5px; }
-    button:hover, select:hover { background-color: #00ddb3; }
-    #resultado { font-size: 1.2em; word-wrap: break-word; max-width: 90%; margin-top: 10px; }
+    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; padding: 20px;}
+    textarea { width: 90%; max-width: 800px; height: 120px; margin: 10px 0; font-size: 1.1em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; resize: vertical;}
+    button { padding: 10px 20px; font-size: 1.1em; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; margin: 10px 0;}
+    button:hover { background-color: #00ddb3; }
+    select { padding: 5px 10px; margin-bottom: 10px; font-size: 1.1em; }
+    #resultado { font-size: 1.2em; word-wrap: break-word; max-width: 90%; margin-top: 10px; white-space: pre-wrap;}
 </style>
 </head>
 <body>
-<h2>Traductor a Alfabeto Electrónico Universal</h2>
-<textarea id="entrada" placeholder="Escribe o pega aquí tu texto"></textarea>
+<h2>Traductor de Alfabeto Electrónico</h2>
 <select id="modo">
-    <option value="palabras-codigo">Palabras → Código</option>
-    <option value="codigo-palabras">Código → Palabras</option>
+    <option value="letras">Letras → Código</option>
+    <option value="codigo">Código → Letras</option>
 </select>
+<textarea id="entrada" placeholder="Escribe o pega aquí tu texto"></textarea>
 <button onclick="traducirTexto()">Traducir</button>
 <div id="resultado"></div>
 
@@ -26,31 +27,50 @@ const tabla = {
     'A':'⟡','B':'⌁','C':'⊚','D':'⌂','E':'⟢','F':'⊹','G':'⟣','H':'⊗','I':'⟂','J':'⌇',
     'K':'⎝','L':'⎢','M':'⎚','N':'⎙','O':'⏣','P':'⎗','Q':'⍾','R':'⎘','S':'⌁̸','T':'⟟',
     'U':'⊔','V':'⌵','W':'⊠','X':'⨳','Y':'⏁','Z':'⌆',
+    '0':'⊘','1':'⊱','2':'⊰','3':'⊲','4':'⊳','5':'⊴','6':'⊵','7':'⊶','8':'⊷','9':'⊸',
+    '.':'·',',':'‚','?':'⍰̸','!':'⍱̸','¿':'⍰','¡':'⍱',' ':' ',
+    'Á':'⟡','É':'⟢','Í':'⟂','Ó':'⏣','Ú':'⊔','Ñ':'⎙',
     'a':'⟡','b':'⌁','c':'⊚','d':'⌂','e':'⟢','f':'⊹','g':'⟣','h':'⊗','i':'⟂','j':'⌇',
     'k':'⎝','l':'⎢','m':'⎚','n':'⎙','o':'⏣','p':'⎗','q':'⍾','r':'⎘','s':'⌁̸','t':'⟟',
     'u':'⊔','v':'⌵','w':'⊠','x':'⨳','y':'⏁','z':'⌆',
-    '0':'⊘','1':'⊱','2':'⊰','3':'⊲','4':'⊳','5':'⊴','6':'⊵','7':'⊶','8':'⊷','9':'⊸',
-    'Á':'⟡','É':'⟢','Í':'⟂','Ó':'⏣','Ú':'⊔','Ñ':'⎙',
-    'á':'⟡','é':'⟢','í':'⟂','ó':'⏣','ú':'⊔','ñ':'⎙',
-    '.':'·',',':'‚','?':'⍰̸','!':'⍱̸','¿':'⍰','¡':'⍱',' ':' '
+    'á':'⟡','é':'⟢','í':'⟂','ó':'⏣','ú':'⊔','ñ':'⎙'
 };
+
+// Generar diccionario inverso
+const tablaInv = {};
+for (const key in tabla) { tablaInv[tabla[key]] = key.toLowerCase(); }
 
 function traducirTexto() {
     const modo = document.getElementById('modo').value;
     const texto = document.getElementById('entrada').value;
     let resultado = '';
-
-    if(modo === "palabras-codigo"){
-        for(let i=0;i<texto.length;i++){
-            resultado += tabla[texto[i]] || texto[i];
+    
+    if (modo === 'letras') {
+        for (let i=0; i<texto.length; i++) {
+            const c = texto[i];
+            resultado += tabla[c] || c;
         }
-    } else {
-        const invertida = Object.fromEntries(Object.entries(tabla).map(([k,v]) => [v,k]));
-        for(let i=0;i<texto.length;i++){
-            resultado += invertida[texto[i]] || texto[i];
+    } else { // código → letras
+        // Detectar códigos compuestos (2 caracteres o más) para símbolos especiales
+        // Ordenamos por longitud de símbolo para que coincida primero los más largos
+        const simbolos = Object.keys(tablaInv).sort((a,b)=>b.length-a.length);
+        let i=0;
+        while(i<texto.length){
+            let encontrado = false;
+            for (let sym of simbolos){
+                if(texto.startsWith(sym,i)){
+                    resultado += tablaInv[sym];
+                    i += sym.length;
+                    encontrado = true;
+                    break;
+                }
+            }
+            if(!encontrado){
+                resultado += texto[i];
+                i++;
+            }
         }
     }
-
     document.getElementById('resultado').innerText = resultado;
 }
 </script>
