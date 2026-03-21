@@ -2,40 +2,40 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor a Alfabeto Electrónico Seguro</title>
+<title>Traductor de Alfabeto Electrónico</title>
 <style>
     body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    textarea { width: 90%; max-width: 600px; height: 100px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
-    select, button { padding: 10px 20px; font-size: 1.2em; margin: 5px; cursor: pointer; }
-    #resultado { font-size: 1.4em; word-wrap: break-word; max-width: 90%; margin-top: 10px; }
+    textarea { width: 90%; max-width: 600px; height: 120px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
+    select, button { padding: 10px 20px; font-size: 1.2em; margin: 5px; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; }
+    button:hover, select:hover { background-color: #00ddb3; }
+    #resultado { font-size: 1.4em; word-wrap: break-word; max-width: 90%; margin-top: 15px; }
 </style>
 </head>
 <body>
-<h2>Traductor a Alfabeto Electrónico Seguro</h2>
-
+<h2>Traductor de Alfabeto Electrónico</h2>
 <select id="modo">
-    <option value="letras-a-codigo">Palabras → Código</option>
-    <option value="codigo-a-letras">Código → Palabras</option>
+    <option value="letra-codigo">Letras → Código</option>
+    <option value="codigo-letra">Código → Letras</option>
 </select>
-
-<textarea id="entrada" placeholder="Escribe o pega aquí tu texto"></textarea>
+<textarea id="entrada" placeholder="Escribe o pega tu texto aquí"></textarea>
 <button onclick="traducirTexto()">Traducir</button>
 <div id="resultado"></div>
 
 <script>
+// Tabla de signos
 const tabla = {
-    'A':'∆','B':'∇','C':'☉','D':'◉','E':'◎','F':'⊙','G':'●','H':'◌','I':'◍','J':'◎',
-    'K':'⊕','L':'⊗','M':'⊙','N':'◐','O':'◑','P':'◒','Q':'◓','R':'◔','S':'◕','T':'◖',
-    'U':'◗','V':'◘','W':'◙','X':'◚','Y':'◛','Z':'◜',
-    '0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9',
-    '.':'.',',':',','?':'?','!':'!',' ':' ',
-    'Á':'∆','É':'◎','Í':'◍','Ó':'◑','Ú':'◗','Ñ':'◐'
+    'A':'⊕','B':'⊙','C':'⊛','D':'⊜','E':'⊝','F':'⊞','G':'⊠','H':'⊣','I':'⊤','J':'⊦',
+    'K':'⊨','L':'⊪','M':'⊬','N':'⊗','O':'⊘','P':'⊖','Q':'⊚','R':'⊛̸','S':'⊟','T':'⊡',
+    'U':'⊢','V':'⊥','W':'⊧','X':'⊩','Y':'⊫','Z':'⊭',
+    '0':'◉','1':'◌','2':'◎','3':'◑','4':'◓','5':'◎','6':'●','7':'◐','8':'◒','9':'◔',
+    '.':'⋅',',':'‚','?':'⍰','!':'⍱',' ':'␣',
+    'Á':'⊕','É':'⊝','Í':'⊤','Ó':'⊘','Ú':'⊢','Ñ':'⊗'
 };
 
-// Invertimos la tabla para el modo código → letras
-const tablaInvertida = {};
-for (const key in tabla) {
-    tablaInvertida[tabla[key]] = key;
+// Generar tabla inversa (código → letra)
+const tabla_inversa = {};
+for(const key in tabla){
+    tabla_inversa[tabla[key]] = key;
 }
 
 function traducirTexto() {
@@ -43,15 +43,22 @@ function traducirTexto() {
     const texto = document.getElementById('entrada').value;
     let resultado = '';
 
-    if (modo === 'letras-a-codigo') {
-        for(let i=0;i<texto.length;i++){
+    if(modo === 'letra-codigo') {
+        for(let i=0; i<texto.length; i++){
             const c = texto[i].toUpperCase();
             resultado += tabla[c] || c;
         }
-    } else { // codigo-a-letras
-        for(let i=0;i<texto.length;i++){
-            const c = texto[i];
-            resultado += tablaInvertida[c] || c;
+    } else { // codigo-letra
+        let buffer = '';
+        for(let i=0; i<texto.length; i++){
+            buffer += texto[i];
+            if(tabla_inversa[buffer]) {
+                resultado += tabla_inversa[buffer];
+                buffer = '';
+            } else if(buffer.length > 3) { // evitar bloqueo si no hay coincidencia
+                resultado += buffer;
+                buffer = '';
+            }
         }
     }
 
