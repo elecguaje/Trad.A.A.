@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Traductor a Alfabeto Electrónico</title>
+<style>
+    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    textarea { width: 90%; max-width: 600px; height: 100px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
+    button { padding: 10px 20px; font-size: 1.2em; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; margin-bottom: 10px; }
+    button:hover { background-color: #00ddb3; }
+    #resultado { font-size: 1.4em; word-wrap: break-word; max-width: 90%; }
+</style>
+</head>
+<body>
+
+<h2>Traductor a Alfabeto Electrónico</h2>
+
+<textarea id="entrada" placeholder="Escribe o pega aquí tu texto"></textarea>
+<button onclick="traducirTexto()">Traducir</button>
+<div id="resultado"></div>
+
+<script>
+function traducirTexto() {
+    const tabla = {
+        'A':'⟡','B':'⌁','C':'⊚','D':'⌂','E':'⟢','F':'⊹','G':'⟣','H':'⊗','I':'⟂','J':'⌇',
+        'K':'⎝','L':'⎢','M':'⎚','N':'⎙','O':'⏣','P':'⎗','Q':'⍾','R':'⎘','S':'⌁̸','T':'⟟',
+        'U':'⊔','V':'⌵','W':'⊠','X':'⨳','Y':'⏁','Z':'⌆',
+        '0':'⊘','1':'⊱','2':'⊰','3':'⊲','4':'⊳','5':'⊴','6':'⊵','7':'⊶','8':'⊷','9':'⊸',
+        '.':'·',',':'‚','?':'⍰̸','!':'⍱̸','¿':'⍰','¡':'⍱',' ':' ',
+        'Á':'⟡','É':'⟢','Í':'⟂','Ó':'⏣','Ú':'⊔','Ñ':'⎙'
+    };
+    const texto = document.getElementById('entrada').value;
+    let resultado = '';
+    for(let i=0;i<texto.length;i++){
+        const c = texto[i].toUpperCase();
+        resultado += tabla[c] || c;
+    }
+    document.getElementById('resultado').innerText = resultado;
+}
+</script>
+
+</body>
+</html>
