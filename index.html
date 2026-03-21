@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor Alfabeto de Símbolos</title>
+<title>Trad.A.A.</title>
 <style>
   body { font-family: monospace; background: #000; color: #fff; padding: 20px; }
   textarea { width: 100%; height: 150px; margin-bottom: 10px; font-size: 16px; background: #111; color: #fff; border: 1px solid #444; }
@@ -10,7 +10,7 @@
 </style>
 </head>
 <body>
-<h2>Traductor Alfabeto de Símbolos</h2>
+<h2>Trad.A.A.</h2>
 <label for="direction">Dirección de traducción:</label>
 <select id="direction">
   <option value="letters-to-symbols">Letras → Símbolos</option>
@@ -35,7 +35,7 @@ const letterToSymbol = {
   ".":"❨", ",":"❩", "?":"“", "!":"❝", ":":"”", ";":"❞", "-":"・"
 };
 
-// Generamos el diccionario inverso automáticamente
+// Diccionario inverso
 const symbolToLetter = {};
 for (const [key, value] of Object.entries(letterToSymbol)) {
   symbolToLetter[value] = key;
@@ -51,24 +51,15 @@ function translate() {
       output += letterToSymbol[char] || char;
     }
   } else {
-    // Para symbols → letters, se puede traducir símbolo por símbolo
     let buffer = "";
     for (let i = 0; i < input.length; i++) {
       buffer = input[i];
-      // Si es un símbolo compuesto, ajustar aquí según necesidad
       output += symbolToLetter[buffer] || buffer;
     }
   }
 
   document.getElementById("output").value = output;
 }
-
-// Frase de prueba (puedes pegar aquí la frase en símbolos)
-const pruebaTexto = "Estás traduciendo una forma de comunicación creada especialmente para personas privilegiadas. He creado un alfabeto cifrado para poder hacer posible un sistema de comunicación. Alchemytronic Archives realizará publicaciones con esta escritura y solo podrán traducir las informaciones los artistas que vallan colaborando en el proyecto. Próximamente más información...";
-
-// Convertimos la frase de prueba a símbolos
-document.getElementById("input").value = pruebaTexto;
-translate();
 </script>
 </body>
 </html>
