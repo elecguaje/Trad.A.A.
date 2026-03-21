@@ -4,102 +4,65 @@
 <meta charset="UTF-8">
 <title>Trad.A.A.</title>
 <style>
-body {
-    background-color: black;
-    color: white;
-    font-family: monospace;
-    padding: 20px;
-}
-h1 {
-    text-align: center;
-}
-textarea {
-    width: 100%;
-    height: 120px;
-    background-color: black;
-    color: white;
-    border: 1px solid white;
-    padding: 10px;
-    font-family: monospace;
-    font-size: 16px;
-}
-button {
-    background-color: white;
-    color: black;
-    padding: 10px 20px;
-    font-size: 16px;
-    margin-top: 10px;
-    cursor: pointer;
-}
-select {
-    font-size: 16px;
-    margin-bottom: 10px;
-    background-color: black;
-    color: white;
-}
+body { font-family: monospace; background: #000; color: #fff; padding: 2rem; }
+h1 { text-align: center; }
+textarea { width: 100%; height: 150px; background: #111; color: #fff; border: 1px solid #555; padding: 0.5rem; font-size: 1rem; }
+select, button { padding: 0.5rem; font-size: 1rem; margin-top: 1rem; }
+.container { max-width: 800px; margin: auto; }
 </style>
 </head>
 <body>
+<div class="container">
 <h1>Trad.A.A.</h1>
 
-<label for="modo">Modo de traducción:</label>
-<select id="modo">
-    <option value="codeToLetter" selected>Códigos → Letras</option>
-    <option value="letterToCode">Letras → Códigos</option>
-</select>
+<textarea id="inputText" placeholder="Pega aquí tu código o texto..."></textarea>
 
-<textarea id="entrada" placeholder="Pega aquí tu código o texto..."></textarea>
-<button onclick="traducir()">Traducir</button>
-<textarea id="salida" placeholder="Resultado..." readonly></textarea>
+<br>
+<select id="modeSelect">
+  <option value="code2letter" selected>Códigos → Letras</option>
+  <option value="letter2code">Letras → Códigos</option>
+</select>
+<br>
+<button onclick="translate()">Traducir</button>
+
+<textarea id="outputText" placeholder="Resultado..." readonly></textarea>
+</div>
 
 <script>
-const mapa = {
-    // Letras
-    "A":"⊝","B":"⊗","C":"⊡","D":"⊕","E":"⊛","F":"⊜","G":"⊟","H":"⊠","I":"⊡","J":"⊢",
-    "K":"⊣","L":"⊤","M":"⊥","N":"⊦","O":"⊧","P":"⊨","Q":"⊩","R":"⊪","S":"⊫","T":"⊬",
-    "U":"⊭","V":"⊮","W":"⊯","X":"⊰","Y":"⊱","Z":"⊲",
-    // Minúsculas
-    "a":"⊝","b":"⊗","c":"⊡","d":"⊕","e":"⊛","f":"⊜","g":"⊟","h":"⊠","i":"⊡","j":"⊢",
-    "k":"⊣","l":"⊤","m":"⊥","n":"⊦","o":"⊧","p":"⊨","q":"⊩","r":"⊪","s":"⊫","t":"⊶",
-    "u":"⊭","v":"⊮","w":"⊯","x":"⊰","y":"⊱","z":"⊲",
-    // Números
-    "0":"⌖","1":"⊗","2":"⌬","3":"⋔","4":"⊠","5":"⊞","6":"⋉","7":"⊜","8":"⋈","9":"⊥",
-    // Puntuación
-    ".":"⊡",",":"⊙","!":"⊘","?":"⊝",":":"⊹",";":"⊷","-":"⊶","(":"❨",")":"❩","\"":"❝",
-    " ":" "
+// Define alfabeto seguro
+const codeMap = {
+  "A":"⊕","B":"⊗","C":"⊖","D":"⊘","E":"⊙","F":"⊚","G":"⊛","H":"⊜","I":"⊝","J":"⊞",
+  "K":"◼","L":"◻","M":"◾","N":"◽","O":"◉","P":"◌","Q":"◍","R":"◦","S":"•","T":"‣",
+  "U":"❖","V":"❘","W":"❙","X":"❚","Y":"✦","Z":"✧",
+  "a":"⊕","b":"⊗","c":"⊖","d":"⊘","e":"⊙","f":"⊚","g":"⊛","h":"⊜","i":"⊝","j":"⊞",
+  "k":"◼","l":"◻","m":"◾","n":"◽","o":"◉","p":"◌","q":"◍","r":"◦","s":"•","t":"‣",
+  "u":"❖","v":"❘","w":"❙","x":"❚","y":"✦","z":"✧",
+  "0":"❯","1":"❮","2":"❬","3":"❭","4":"❪","5":"❫","6":"❬","7":"❭","8":"❪","9":"❫",
+  " ":" ", ".":"⊹", ",":"⊷", "?":"❓", "!":"❗", ":":"⊶", ";":"❘", "-":"-"
 };
 
-// Crear mapa inverso automáticamente
-const mapaInverso = {};
-for(let key in mapa){
-    mapaInverso[mapa[key]] = key;
+// Crea el mapa inverso
+const letterMap = {};
+for(let key in codeMap){
+    letterMap[codeMap[key]] = key;
 }
 
-function traducir() {
-    const modo = document.getElementById("modo").value;
-    const entrada = document.getElementById("entrada").value;
-    let resultado = "";
+function translate() {
+    const mode = document.getElementById('modeSelect').value;
+    const text = document.getElementById('inputText').value;
+    let result = "";
 
-    if(modo === "letterToCode") {
-        for(let char of entrada){
-            resultado += mapa[char] || char;
+    if(mode === "letter2code"){
+        for(let char of text){
+            result += codeMap[char] || char;
         }
-    } else { // codeToLetter
-        let buffer = "";
-        for(let char of entrada){
-            buffer += char;
-            if(mapaInverso[buffer]){
-                resultado += mapaInverso[buffer];
-                buffer = "";
-            } else if(!Object.keys(mapaInverso).some(k => k.startsWith(buffer))){
-                // Si no coincide, deja el símbolo como está y limpia buffer
-                resultado += buffer;
-                buffer = "";
-            }
+    } else {
+        for(let char of text){
+            result += letterMap[char] || char;
         }
-        resultado += buffer; // cualquier sobrante
     }
-    document.getElementById("salida").value = resultado;
+
+    document.getElementById('outputText').value = result;
 }
 </script>
 </body>
