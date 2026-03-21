@@ -31,14 +31,14 @@
 
 <h2>Trad.A.A.</h2>
 
-<select id="direction">
+<select id="direction" onchange="translate()">
   <option value="decode" selected>Código → Texto</option>
   <option value="encode">Texto → Código</option>
 </select>
 
 <br><br>
 
-<textarea id="input" placeholder="Pega aquí el código o el texto..."></textarea>
+<textarea id="input" placeholder="Pega aquí el código o el texto..." oninput="translate()"></textarea>
 
 <button onclick="translate()">Traducir</button>
 
@@ -46,7 +46,6 @@
 
 <script>
 
-// CIFRADO (2 letras = 1 código)
 const mapa = {
   A:"ka", B:"zu", C:"mi", D:"po", E:"ra", F:"te", G:"vi", H:"lo", I:"na",
   J:"se", K:"di", L:"xo", M:"cu", N:"we", O:"qy", P:"gb", Q:"hj", R:"fk",
@@ -59,25 +58,34 @@ const mapa = {
   "!":"!!"
 };
 
-// inverso
 const mapaInv = {};
 for (let k in mapa) {
   mapaInv[mapa[k]] = k;
 }
 
 function translate(){
-  const input = document.getElementById("input").value;
+  const input = document.getElementById("input").value.trim();
   const mode = document.getElementById("direction").value;
   let result = "";
+
+  if(!input){
+    document.getElementById("output").value = "";
+    return;
+  }
 
   if(mode === "encode"){
     for(let char of input.toUpperCase()){
       result += mapa[char] || char;
     }
   } else {
+    // Divide en bloques de 2 SIEMPRE
     for(let i = 0; i < input.length; i += 2){
-      let bloque = input.substr(i,2);
-      result += mapaInv[bloque] || "";
+      let bloque = input.substring(i, i + 2);
+      if(mapaInv[bloque]){
+        result += mapaInv[bloque];
+      } else {
+        result += "?";
+      }
     }
   }
 
