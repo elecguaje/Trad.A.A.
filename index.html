@@ -2,89 +2,109 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor Bidireccional de Alfabeto Electrónico</title>
+<title>Traductor Alfabeto Electrónico</title>
 <style>
-    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; padding: 20px; }
-    textarea { width: 90%; max-width: 700px; height: 100px; margin: 10px 0; font-size: 1.1em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
-    select, button { padding: 10px 20px; font-size: 1.1em; margin: 5px; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; }
-    button:hover, select:hover { background-color: #00ddb3; }
-    #resultado { font-size: 1.3em; word-wrap: break-word; max-width: 90%; margin-top: 15px; white-space: pre-wrap; }
+    body {
+        font-family: monospace;
+        background-color: #0d0d0d;
+        color: #00ffcc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+    }
+    textarea {
+        width: 90%;
+        max-width: 600px;
+        height: 120px;
+        margin: 10px 0;
+        font-size: 1.2em;
+        background-color: #111;
+        color: #00ffcc;
+        border: 1px solid #00ffcc;
+        padding: 10px;
+    }
+    select, button {
+        padding: 10px;
+        font-size: 1.1em;
+        margin: 5px;
+        cursor: pointer;
+    }
+    button {
+        background-color: #00ffcc;
+        color: #0d0d0d;
+        border: none;
+    }
+    button:hover {
+        background-color: #00ddb3;
+    }
+    #resultado {
+        font-size: 1.2em;
+        word-wrap: break-word;
+        max-width: 90%;
+        margin-top: 10px;
+        background-color: #111;
+        padding: 10px;
+        border: 1px solid #00ffcc;
+        min-height: 60px;
+    }
 </style>
 </head>
 <body>
+<h2>Traductor Alfabeto Electrónico</h2>
 
-<h2>Traductor Bidireccional de Alfabeto Electrónico</h2>
-
-<textarea id="entrada" placeholder="Escribe aquí tu texto o pega los códigos"></textarea>
-
-<div>
-    <select id="modo">
-        <option value="palabra-a-codigo">Palabras → Códigos</option>
-        <option value="codigo-a-palabra">Códigos → Palabras</option>
-    </select>
-    <button onclick="traducirTexto()">Traducir</button>
-</div>
+<textarea id="entrada" placeholder="Escribe o pega aquí tu texto o códigos"></textarea>
+<br>
+<select id="modo">
+    <option value="palabras-codigo">Palabras → Códigos</option>
+    <option value="codigo-palabras">Códigos → Palabras</option>
+</select>
+<button onclick="traducirTexto()">Traducir</button>
 
 <div id="resultado"></div>
 
 <script>
-// Definimos el alfabeto electrónico
 const tabla = {
-    'A':'⊝', 'B':'⊗', 'C':'⊡', 'D':'⊕', 'E':'⊖', 'F':'⊤', 'G':'⊢', 'H':'⊣', 'I':'⊤⊗', 'J':'⊦',
-    'K':'⊤⊕', 'L':'⊢⊗', 'M':'⊢⊡', 'N':'⊣⊗', 'O':'⊙', 'P':'⊗⊣', 'Q':'⊡⊝', 'R':'⊗⊙', 'S':'⊡⊗', 'T':'⊝⊕',
-    'U':'⊗⊤', 'V':'⊕⊡', 'W':'⊙⊣', 'X':'⊡⊙', 'Y':'⊗⊡', 'Z':'⊣⊝',
-    '0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9',
-    '.':'.', ',':',', '?':'?', '!':'!', ' ':' '
+    'A':'⊝','B':'⊗','C':'⊡','D':'⊕','E':'⊛','F':'⊤','G':'⊦','H':'⊣','I':'⊢','J':'⊤⊝',
+    'K':'⊡⊗','L':'⊕⊛','M':'⊗⊣','N':'⊡⊤','O':'⊝⊕','P':'⊛⊤','Q':'⊦⊗','R':'⊢⊝','S':'⊣⊡',
+    'T':'⊤⊗','U':'⊝⊣','V':'⊗⊡','W':'⊡⊕','X':'⊕⊗','Y':'⊗⊝','Z':'⊣⊗',
+    '0':'⊙','1':'⊚','2':'⊛⊗','3':'⊤⊡','4':'⊝⊢','5':'⊡⊣','6':'⊕⊢','7':'⊗⊤','8':'⊝⊤','9':'⊣⊕',
+    '.':'·',',':'‚','?':'¿','!':'¡',' ':' '
 };
 
-// Crear tabla inversa automáticamente
+// Crear la tabla inversa para traducir códigos → palabras
 const tablaInversa = {};
-for (let letra in tabla) {
-    tablaInversa[tabla[letra]] = letra;
+for (let key in tabla) {
+    tablaInversa[tabla[key]] = key;
 }
 
-// Función principal
 function traducirTexto() {
     const texto = document.getElementById('entrada').value;
     const modo = document.getElementById('modo').value;
     let resultado = '';
 
-    if (modo === 'palabra-a-codigo') {
-        for(let i=0;i<texto.length;i++){
+    if (modo === 'palabras-codigo') {
+        for (let i = 0; i < texto.length; i++) {
             const c = texto[i].toUpperCase();
             resultado += tabla[c] || c;
         }
-    } else { // codigo-a-palabra
+    } else { // código → palabras
         let buffer = '';
-        for(let i=0;i<texto.length;i++){
+        for (let i = 0; i < texto.length; i++) {
             buffer += texto[i];
-            // Intentamos buscar coincidencia en tabla inversa
-            if(tablaInversa[buffer]){
+            if (tablaInversa[buffer]) {
                 resultado += tablaInversa[buffer];
                 buffer = '';
-            } else {
-                // Si buffer es un carácter simple que no está en la tabla, dejamos el caracter
-                if(buffer.length > 2){ // como máximo nuestros códigos tienen 2 caracteres
-                    resultado += buffer;
-                    buffer = '';
-                }
             }
         }
+        // Si queda algo que no coincide, se añade tal cual
+        if (buffer.length > 0) resultado += buffer;
     }
 
     document.getElementById('resultado').innerText = resultado;
 }
 </script>
-
-<h3>Frase de prueba:</h3>
-<p>Palabras originales:</p>
-<pre>Estás traduciendo una forma de comunicación creada especialmente para personas privilegiadas.
-He creado un alfabeto cifrado para poder hacer posible un sistema de comunicación.
-Alchemytronic Archives realizará publicaciones con esta escritura y solo podrán traducir las informaciones los artistas que vallan colaborando en el proyecto.
-Próximamente más información...</pre>
-
-<p>Frase en códigos:</p>
-<pre>⊖⊝⊕⊝⊡ ⊕⊣⊡⊣⊗⊣⊝⊬ ⊣⊗⊗⊝⊣⊝⊗ ⊙⊣⊗ ⊝⊢⊗ ⊕⊣⊝⊢⊤⊗ ⊣⊤⊗⊣⊣⊕⊣⊗⊣⊝⊗ ⊣⊗⊗⊝⊣⊝⊗ ⊝⊢⊗ ⊣⊗⊡⊗⊖ ⊗⊝⊕⊗ ⊕⊣⊗⊢⊗⊣⊡⊤⊗⊦ ...</pre>
-
 </body>
 </html>
