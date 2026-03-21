@@ -10,56 +10,59 @@
 </style>
 </head>
 <body>
+
 <h2>Trad.A.A.</h2>
-<label for="direction">Dirección de traducción:</label>
+
 <select id="direction">
+  <option value="symbols-to-letters" selected>Símbolos → Letras</option>
   <option value="letters-to-symbols">Letras → Símbolos</option>
-  <option value="symbols-to-letters">Símbolos → Letras</option>
 </select>
+
 <br><br>
-<textarea id="input" placeholder="Introduce texto o símbolos aquí..."></textarea>
+
+<textarea id="input" placeholder="Pega aquí símbolos o texto..."></textarea>
 <button onclick="translate()">Traducir</button>
 <textarea id="output" placeholder="Resultado" readonly></textarea>
 
 <script>
-// Definición del alfabeto de símbolos personalizado
+
+// ALFABETO LIMPIO (1 símbolo = 1 carácter REAL)
 const letterToSymbol = {
-  A: "ׂ", B: "╰", C: "·", D: "「", E: "꒰", F: "✧", G: "₊", H: "｡", I: ":̗̀", 
-  J: "₊˚", K: "⊱", L: ".˚", M: "❥", N: "-ˋˏ", O: "⋆", P: "˚", Q: "↶", R: "⌦", 
-  S: "ೃ", T: "✎", U: "୨", V: "❥︎", W: "┊", X: "彡", Y: "﹏", Z: "┇",
-  a: "ꔛ", b: "⋆", c: "ꔚ", d: "ꕁ", e: "*ೃ", f: "·˚", g: "ʚ", h: "╏", i: "༊", j: "⌇", 
-  k: "❧", l: "⸜", m: "〰", n: "❦", o: "▓", p: "◦", q: "∅", r: "∘", s: "⊕", t: "⊘", 
-  u: "⊚", v: "⊛", w: "⊜", x: "⊝", y: "❍", z: "⦿",
-  "0":"•", "1":",", "2":"‣", "3":"?", "4":"❗", "5":":", "6":"⊹", "7":";", "8":"⊷", "9":"-",
+  A:"∆", B:"ß", C:"¢", D:"Ð", E:"€", F:"ƒ", G:"Ǥ", H:"Ħ", I:"!", J:"ʝ",
+  K:"Ҡ", L:"£", M:"₥", N:"₪", O:"Ø", P:"ρ", Q:"Ω", R:"₹", S:"§", T:"†",
+  U:"µ", V:"√", W:"Ψ", X:"χ", Y:"¥", Z:"Ž",
+
+  "0":"○","1":"●","2":"□","3":"■","4":"△","5":"▲","6":"◇","7":"◆","8":"☆","9":"★",
+
   " ":" ",
-  ".":"❨", ",":"❩", "?":"“", "!":"❝", ":":"”", ";":"❞", "-":"・"
+  ".":"•", ",":"‚", "?":"¿", "!":"¡", ":":"∶", ";":"∷", "-":"—"
 };
 
-// Diccionario inverso
+// INVERSO AUTOMÁTICO
 const symbolToLetter = {};
-for (const [key, value] of Object.entries(letterToSymbol)) {
-  symbolToLetter[value] = key;
+for (let key in letterToSymbol) {
+  symbolToLetter[letterToSymbol[key]] = key;
 }
 
-function translate() {
+function translate(){
   const input = document.getElementById("input").value;
   const direction = document.getElementById("direction").value;
-  let output = "";
+  let result = "";
 
-  if (direction === "letters-to-symbols") {
-    for (const char of input) {
-      output += letterToSymbol[char] || char;
+  if(direction === "letters-to-symbols"){
+    for(let char of input.toUpperCase()){
+      result += letterToSymbol[char] || char;
     }
   } else {
-    let buffer = "";
-    for (let i = 0; i < input.length; i++) {
-      buffer = input[i];
-      output += symbolToLetter[buffer] || buffer;
+    for(let char of input){
+      result += symbolToLetter[char] || char;
     }
   }
 
-  document.getElementById("output").value = output;
+  document.getElementById("output").value = result;
 }
+
 </script>
+
 </body>
 </html>
