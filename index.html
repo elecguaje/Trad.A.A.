@@ -4,9 +4,27 @@
 <meta charset="UTF-8">
 <title>Trad.A.A.</title>
 <style>
-  body { font-family: monospace; background: #000; color: #fff; padding: 20px; }
-  textarea { width: 100%; height: 150px; margin-bottom: 10px; font-size: 16px; background: #111; color: #fff; border: 1px solid #444; }
-  select, button { font-size: 16px; margin-right: 10px; }
+  body {
+    font-family: monospace;
+    background: #000;
+    color: #fff;
+    padding: 20px;
+  }
+  textarea {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px;
+  }
+  select, button {
+    font-size: 16px;
+    margin-right: 10px;
+    padding: 5px;
+  }
 </style>
 </head>
 <body>
@@ -14,48 +32,52 @@
 <h2>Trad.A.A.</h2>
 
 <select id="direction">
-  <option value="symbols-to-letters" selected>Símbolos → Letras</option>
-  <option value="letters-to-symbols">Letras → Símbolos</option>
+  <option value="decode" selected>Código → Texto</option>
+  <option value="encode">Texto → Código</option>
 </select>
 
 <br><br>
 
-<textarea id="input" placeholder="Pega aquí símbolos o texto..."></textarea>
+<textarea id="input" placeholder="Pega aquí el código o el texto..."></textarea>
+
 <button onclick="translate()">Traducir</button>
+
 <textarea id="output" placeholder="Resultado" readonly></textarea>
 
 <script>
 
-// ALFABETO LIMPIO (1 símbolo = 1 carácter REAL)
-const letterToSymbol = {
-  A:"∆", B:"ß", C:"¢", D:"Ð", E:"€", F:"ƒ", G:"Ǥ", H:"Ħ", I:"!", J:"ʝ",
-  K:"Ҡ", L:"£", M:"₥", N:"₪", O:"Ø", P:"ρ", Q:"Ω", R:"₹", S:"§", T:"†",
-  U:"µ", V:"√", W:"Ψ", X:"χ", Y:"¥", Z:"Ž",
+// CIFRADO (2 letras = 1 código)
+const mapa = {
+  A:"ka", B:"zu", C:"mi", D:"po", E:"ra", F:"te", G:"vi", H:"lo", I:"na",
+  J:"se", K:"di", L:"xo", M:"cu", N:"we", O:"qy", P:"gb", Q:"hj", R:"fk",
+  S:"tr", T:"zz", U:"pl", V:"mn", W:"bv", X:"cx", Y:"lk", Z:"jh",
 
-  "0":"○","1":"●","2":"□","3":"■","4":"△","5":"▲","6":"◇","7":"◆","8":"☆","9":"★",
-
-  " ":" ",
-  ".":"•", ",":"‚", "?":"¿", "!":"¡", ":":"∶", ";":"∷", "-":"—"
+  " ":"__",
+  ".":"..",
+  ",":",,",
+  "?":"??",
+  "!":"!!"
 };
 
-// INVERSO AUTOMÁTICO
-const symbolToLetter = {};
-for (let key in letterToSymbol) {
-  symbolToLetter[letterToSymbol[key]] = key;
+// inverso
+const mapaInv = {};
+for (let k in mapa) {
+  mapaInv[mapa[k]] = k;
 }
 
 function translate(){
   const input = document.getElementById("input").value;
-  const direction = document.getElementById("direction").value;
+  const mode = document.getElementById("direction").value;
   let result = "";
 
-  if(direction === "letters-to-symbols"){
+  if(mode === "encode"){
     for(let char of input.toUpperCase()){
-      result += letterToSymbol[char] || char;
+      result += mapa[char] || char;
     }
   } else {
-    for(let char of input){
-      result += symbolToLetter[char] || char;
+    for(let i = 0; i < input.length; i += 2){
+      let bloque = input.substr(i,2);
+      result += mapaInv[bloque] || "";
     }
   }
 
