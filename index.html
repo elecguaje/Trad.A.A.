@@ -3,60 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <title>Trad.A.A.</title>
+
+<style>
+body{
+  background:black;
+  color:#00ffcc;
+  font-family:monospace;
+  text-align:center;
+  padding:20px;
+}
+
+textarea{
+  width:90%;
+  height:120px;
+  background:#111;
+  color:#00ffcc;
+  border:1px solid #00ffcc;
+  margin:10px;
+  padding:10px;
+  font-size:16px;
+}
+
+button, select{
+  padding:10px;
+  margin:10px;
+  background:#00ffcc;
+  color:black;
+  border:none;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
 </head>
-<body style="background:black;color:white;font-family:monospace;padding:20px;">
+
+<body>
 
 <h2>Trad.A.A.</h2>
 
-<select id="mode">
-  <option value="decode" selected>Código → Texto</option>
-  <option value="encode">Texto → Código</option>
+<select id="modo">
+  <option value="decode" selected>Símbolos → Texto</option>
+  <option value="encode">Texto → Símbolos</option>
 </select>
 
-<br><br>
+<br>
 
-<textarea id="input" style="width:100%;height:100px;"></textarea>
-<br><br>
+<textarea id="entrada"></textarea>
+
+<br>
 
 <button onclick="traducir()">Traducir</button>
 
-<br><br>
+<br>
 
-<textarea id="output" style="width:100%;height:100px;"></textarea>
+<textarea id="resultado"></textarea>
 
 <script>
 
+const mapa = {
+A:"⊗", B:"⌬", C:"⋔", D:"⊠", E:"⊞", F:"⋉", G:"⊜", H:"⋈", I:"⊥", J:"⌖",
+K:"⊡", L:"⋏", M:"⊚", N:"⊛", O:"⊝", P:"⌗", Q:"⋎", R:"⊕", S:"⊙", T:"⊘",
+U:"⋑", V:"⌁", W:"⋒", X:"⊟", Y:"⋓", Z:"⌭",
+" ":" "
+};
+
+const inverso = {};
+for(let k in mapa){
+  inverso[mapa[k]] = k;
+}
+
 function traducir(){
-
-  const mapa = {
-    A:"ka", B:"zu", C:"mi", D:"po", E:"ra", F:"te", G:"vi", H:"lo", I:"na",
-    J:"se", K:"di", L:"xo", M:"cu", N:"we", O:"qy", P:"gb", Q:"hj", R:"fk",
-    S:"tr", T:"zz", U:"pl", V:"mn", W:"bv", X:"cx", Y:"lk", Z:"jh",
-    " ":"__"
-  };
-
-  const mapaInv = {};
-  for (let k in mapa){
-    mapaInv[mapa[k]] = k;
-  }
-
-  const input = document.getElementById("input").value;
-  const mode = document.getElementById("mode").value;
-
+  const texto = document.getElementById("entrada").value;
+  const modo = document.getElementById("modo").value;
   let resultado = "";
 
-  if(mode === "encode"){
-    for(let letra of input.toUpperCase()){
-      resultado += mapa[letra] || letra;
+  if(modo === "encode"){
+    for(let l of texto.toUpperCase()){
+      resultado += mapa[l] || l;
     }
   } else {
-    for(let i=0;i<input.length;i+=2){
-      let bloque = input.substring(i,i+2);
-      resultado += mapaInv[bloque] || "?";
+    for(let s of texto){
+      resultado += inverso[s] || "?";
     }
   }
 
-  document.getElementById("output").value = resultado;
+  document.getElementById("resultado").value = resultado;
 }
 
 </script>
