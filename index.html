@@ -5,134 +5,107 @@
 <title>Trad.A.A.</title>
 <style>
   body {
-    margin: 0;
-    font-family: monospace;
-    background-color: #001a00; /* Fondo verde oscuro tipo Matrix */
-    color: #cccccc; /* Letras por defecto gris */
-  }
-  .container {
-    width: 90%;
-    max-width: 900px;
-    margin: 30px auto;
+    background-color: #001400; /* fondo verde oscuro */
+    color: #00FF00; /* letras estilo Matrix */
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 20px;
-    background-color: #003300; /* Fondo verde */
-    border-radius: 8px;
   }
-  h1 {
-    text-align: center;
-    color: #ffffff;
-    margin-bottom: 20px;
-  }
+  h1 { color: #AAAAAA; }
   textarea {
-    width: 100%;
+    width: 90%;
     height: 150px;
-    background-color: #001a00;
-    color: #ffffff;
-    font-size: 18px;
-    padding: 10px;
-    border: 2px solid #00ff00;
-    border-radius: 4px;
-    resize: vertical;
-  }
-  select, button {
+    background-color: #003300;
+    color: #AAAAAA;
     font-size: 16px;
-    margin: 10px 0;
-    padding: 5px 10px;
-    border-radius: 4px;
-  }
-  button {
-    cursor: pointer;
-    background-color: #00ff00;
+    padding: 10px;
+    margin-bottom: 10px;
     border: none;
-    color: #001a00;
+    outline: none;
+    resize: none;
+  }
+  button, .tab {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    background-color: #004400;
+    color: #00FF00;
     font-weight: bold;
   }
+  button:hover, .tab:hover { background-color: #006600; }
+  .active { background-color: #00AA00; }
+  #output { color: #FFFFFF; white-space: pre-wrap; margin-top:10px; width: 90%; font-size: 16px; background-color: #003300; padding:10px; }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Trad.A.A.</h1>
-  <select id="mode">
-    <option value="codeToLetter" selected>Códigos → Letras</option>
-    <option value="letterToCode">Letras → Códigos</option>
-  </select>
-  <textarea id="input" placeholder="Pega aquí tu texto o códigos..."></textarea>
-  <button onclick="translate()">Traducir</button>
-  <textarea id="output" placeholder="Traducción aparecerá aquí..." readonly></textarea>
+<h1>Trad.A.A.</h1>
+
+<div>
+  <button class="tab active" onclick="setMode('codeToText')">Códigos → Letras</button>
+  <button class="tab" onclick="setMode('textToCode')">Letras → Códigos</button>
 </div>
 
+<textarea id="input" placeholder="Pega aquí códigos o texto..."></textarea>
+<button onclick="translate()">Traducir</button>
+
+<div id="output"></div>
+
 <script>
-  // ALFABETO CIFRADO: símbolo único por letra, número y puntuación
-  const codeMap = {
-    "A": "•",
-    "B": "‣",
-    "C": "?",
-    "D": "❓",
-    "E": "!",
-    "F": "❗",
-    "G": ":",
-    "H": "⊹",
-    "I": ";",
-    "J": "⊷",
-    "K": "-",
-    "L": "⊶",
-    "M": "(",
-    "N": "❨",
-    "O": ")",
-    "P": "❩",
-    "Q": "“",
-    "R": "❝",
-    "S": "”",
-    "T": "❞",
-    "U": "•",
-    "V": "‣",
-    "W": "?",
-    "X": "❓",
-    "Y": "!",
-    "Z": "❗",
-    "0": "⊹",
-    "1": ";",
-    "2": "⊷",
-    "3": "-",
-    "4": "⊶",
-    "5": "(",
-    "6": "❨",
-    "7": ")",
-    "8": "❩",
-    "9": "“",
-    ".": "❝",
-    ",": "”",
-    "?": "❞",
-    "!": "•",
-    ":": "‣",
-    ";": "?",
-    "-": "❓",
-    " ": " "
-  };
+let mode = 'codeToText'; // por defecto
 
-  // Invertimos el mapa para decodificar
-  const letterMap = {};
-  for (let key in codeMap) {
-    letterMap[codeMap[key]] = key;
-  }
+const codeMap = {
+  "a":"⚡","b":"☄","c":"✦","d":"✧","e":"✪","f":"✫","g":"✬","h":"✭","i":"✮","j":"✯",
+  "k":"✰","l":"✱","m":"✲","n":"✳","o":"✴","p":"✵","q":"✶","r":"✷","s":"✸","t":"✹",
+  "u":"✺","v":"✻","w":"✼","x":"✽","y":"✾","z":"✿",
+  "A":"⚡","B":"☄","C":"✦","D":"✧","E":"✪","F":"✫","G":"✬","H":"✭","I":"✮","J":"✯",
+  "K":"✰","L":"✱","M":"✲","N":"✳","O":"✴","P":"✵","Q":"✶","R":"✷","S":"✸","T":"✹",
+  "U":"✺","V":"✻","W":"✼","X":"✽","Y":"✾","Z":"✿",
+  "0":"❶","1":"❷","2":"❸","3":"❹","4":"❺","5":"❻","6":"❼","7":"❽","8":"❾","9":"❿",
+  " ":"·", ".":"•", ",":"‣", "?":"❓", "!":"❗", ":":"⊹", ";":"⊷", "-":"⊶", "(":"❨", ")":"❩", "\"":"❝"
+};
 
-  function translate() {
-    const input = document.getElementById("input").value;
-    const mode = document.getElementById("mode").value;
-    let output = "";
+// Creamos el mapa inverso para decodificar
+const textMap = {};
+for (let key in codeMap) {
+  textMap[codeMap[key]] = key;
+}
 
-    if (mode === "codeToLetter") {
-      for (let char of input) {
-        output += letterMap[char] || char;
-      }
-    } else {
-      for (let char of input.toUpperCase()) {
-        output += codeMap[char] || char;
+function setMode(newMode){
+  mode = newMode;
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('input').value = '';
+  document.getElementById('output').innerText = '';
+}
+
+function translate() {
+  const input = document.getElementById('input').value;
+  let result = '';
+  if(mode === 'textToCode'){
+    for(let char of input){
+      result += codeMap[char] || char;
+    }
+  } else {
+    // Decodificación
+    let buffer = '';
+    for(let char of input){
+      buffer += char;
+      if(textMap[buffer]){
+        result += textMap[buffer];
+        buffer = '';
+      } else if(!Object.values(textMap).some(v=>v.startsWith(buffer))){
+        // Si no hay coincidencia posible, lo dejamos tal cual y limpiamos buffer
+        result += buffer;
+        buffer = '';
       }
     }
-
-    document.getElementById("output").value = output;
+    result += buffer; // cualquier resto
   }
+  document.getElementById('output').innerText = result;
+}
 </script>
 </body>
 </html>
