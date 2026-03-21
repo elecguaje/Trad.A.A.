@@ -2,66 +2,69 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor de Alfabeto Electrónico</title>
+<title>Traductor a Alfabeto Electrónico</title>
 <style>
-    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    textarea { width: 90%; max-width: 600px; height: 120px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
-    select, button { padding: 10px 20px; font-size: 1.2em; margin: 5px; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; }
-    button:hover, select:hover { background-color: #00ddb3; }
-    #resultado { font-size: 1.4em; word-wrap: break-word; max-width: 90%; margin-top: 15px; }
+    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+    textarea { width: 90%; max-width: 700px; height: 120px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
+    button { padding: 10px 20px; font-size: 1.2em; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; margin-bottom: 10px; }
+    button:hover { background-color: #00ddb3; }
+    #resultado { font-size: 1.2em; word-wrap: break-word; max-width: 90%; white-space: pre-wrap; }
+    select { padding: 5px 10px; font-size: 1em; margin-bottom: 10px; }
 </style>
 </head>
 <body>
-<h2>Traductor de Alfabeto Electrónico</h2>
-<select id="modo">
-    <option value="letra-codigo">Letras → Código</option>
-    <option value="codigo-letra">Código → Letras</option>
+<h2>Traductor a Alfabeto Electrónico</h2>
+<select id="direccion">
+    <option value="letras">Palabras → Códigos</option>
+    <option value="codigos">Códigos → Palabras</option>
 </select>
-<textarea id="entrada" placeholder="Escribe o pega tu texto aquí"></textarea>
+<textarea id="entrada" placeholder="Escribe o pega aquí tu texto"></textarea>
 <button onclick="traducirTexto()">Traducir</button>
 <div id="resultado"></div>
 
 <script>
-// Tabla de signos
-const tabla = {
-    'A':'⊕','B':'⊙','C':'⊛','D':'⊜','E':'⊝','F':'⊞','G':'⊠','H':'⊣','I':'⊤','J':'⊦',
-    'K':'⊨','L':'⊪','M':'⊬','N':'⊗','O':'⊘','P':'⊖','Q':'⊚','R':'⊛̸','S':'⊟','T':'⊡',
-    'U':'⊢','V':'⊥','W':'⊧','X':'⊩','Y':'⊫','Z':'⊭',
-    '0':'◉','1':'◌','2':'◎','3':'◑','4':'◓','5':'◎','6':'●','7':'◐','8':'◒','9':'◔',
-    '.':'⋅',',':'‚','?':'⍰','!':'⍱',' ':'␣',
-    'Á':'⊕','É':'⊝','Í':'⊤','Ó':'⊘','Ú':'⊢','Ñ':'⊗'
+// Tabla letras → signos
+const letrasACodigos = {
+    'A':'⊝','B':'⊗','C':'⊡','D':'⊕','E':'⊖','F':'⊘','G':'⊙','H':'⊚','I':'⊛','J':'⊜',
+    'K':'⊝̸','L':'⊗̸','M':'⊡̸','N':'⊕̸','O':'⊖̸','P':'⊘̸','Q':'⊙̸','R':'⊚̸','S':'⊛̸','T':'⊜̸',
+    'U':'⊝̷','V':'⊗̷','W':'⊡̷','X':'⊕̷','Y':'⊖̷','Z':'⊘̷',
+    '0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9',
+    '.':'.',',':',','?':'?','!':'!',' ':' ',
+    'Á':'⊝','É':'⊖','Í':'⊛','Ó':'⊖̸','Ú':'⊝̷','Ñ':'⊕̸'
 };
 
-// Generar tabla inversa (código → letra)
-const tabla_inversa = {};
-for(const key in tabla){
-    tabla_inversa[tabla[key]] = key;
+// Generar tabla inversa automáticamente
+const codigosALetras = {};
+for (let letra in letrasACodigos) {
+    codigosALetras[letrasACodigos[letra]] = letra;
 }
 
 function traducirTexto() {
-    const modo = document.getElementById('modo').value;
+    const direccion = document.getElementById('direccion').value;
     const texto = document.getElementById('entrada').value;
     let resultado = '';
-
-    if(modo === 'letra-codigo') {
-        for(let i=0; i<texto.length; i++){
+    
+    if(direccion === 'letras') {
+        // Palabras → Códigos
+        for(let i=0;i<texto.length;i++){
             const c = texto[i].toUpperCase();
-            resultado += tabla[c] || c;
+            resultado += letrasACodigos[c] || c;
         }
-    } else { // codigo-letra
+    } else {
+        // Códigos → Palabras
         let buffer = '';
-        for(let i=0; i<texto.length; i++){
+        for(let i=0;i<texto.length;i++){
             buffer += texto[i];
-            if(tabla_inversa[buffer]) {
-                resultado += tabla_inversa[buffer];
+            if(codigosALetras[buffer]){
+                resultado += codigosALetras[buffer];
                 buffer = '';
-            } else if(buffer.length > 3) { // evitar bloqueo si no hay coincidencia
-                resultado += buffer;
-                buffer = '';
+            } else if (buffer.length > 2) { // evitar bloqueos si símbolo no existe
+                resultado += buffer[0];
+                buffer = buffer.slice(1);
             }
         }
+        resultado += buffer; // añadir resto si queda
     }
-
     document.getElementById('resultado').innerText = resultado;
 }
 </script>
