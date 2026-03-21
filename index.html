@@ -3,93 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <title>Trad.A.A.</title>
-
 <style>
-body{
-  background:black;
-  color:#00ffcc;
-  font-family:monospace;
-  text-align:center;
-  padding:20px;
+body {
+    background-color: black;
+    color: white;
+    font-family: monospace;
+    padding: 20px;
 }
-
-textarea{
-  width:90%;
-  height:120px;
-  background:#111;
-  color:#00ffcc;
-  border:1px solid #00ffcc;
-  margin:10px;
-  padding:10px;
-  font-size:16px;
+h1 {
+    text-align: center;
 }
-
-button, select{
-  padding:10px;
-  margin:10px;
-  background:#00ffcc;
-  color:black;
-  border:none;
-  font-size:16px;
-  cursor:pointer;
+textarea {
+    width: 100%;
+    height: 120px;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 16px;
+}
+button {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+select {
+    font-size: 16px;
+    margin-bottom: 10px;
+    background-color: black;
+    color: white;
 }
 </style>
 </head>
-
 <body>
+<h1>Trad.A.A.</h1>
 
-<h2>Trad.A.A.</h2>
-
+<label for="modo">Modo de traducción:</label>
 <select id="modo">
-  <option value="decode" selected>Símbolos → Texto</option>
-  <option value="encode">Texto → Símbolos</option>
+    <option value="codeToLetter" selected>Códigos → Letras</option>
+    <option value="letterToCode">Letras → Códigos</option>
 </select>
 
-<br>
-
-<textarea id="entrada"></textarea>
-
-<br>
-
+<textarea id="entrada" placeholder="Pega aquí tu código o texto..."></textarea>
 <button onclick="traducir()">Traducir</button>
-
-<br>
-
-<textarea id="resultado"></textarea>
+<textarea id="salida" placeholder="Resultado..." readonly></textarea>
 
 <script>
-
 const mapa = {
-A:"⊗", B:"⌬", C:"⋔", D:"⊠", E:"⊞", F:"⋉", G:"⊜", H:"⋈", I:"⊥", J:"⌖",
-K:"⊡", L:"⋏", M:"⊚", N:"⊛", O:"⊝", P:"⌗", Q:"⋎", R:"⊕", S:"⊙", T:"⊘",
-U:"⋑", V:"⌁", W:"⋒", X:"⊟", Y:"⋓", Z:"⌭",
-" ":" "
+    // Letras
+    "A":"⊝","B":"⊗","C":"⊡","D":"⊕","E":"⊛","F":"⊜","G":"⊟","H":"⊠","I":"⊡","J":"⊢",
+    "K":"⊣","L":"⊤","M":"⊥","N":"⊦","O":"⊧","P":"⊨","Q":"⊩","R":"⊪","S":"⊫","T":"⊬",
+    "U":"⊭","V":"⊮","W":"⊯","X":"⊰","Y":"⊱","Z":"⊲",
+    // Minúsculas
+    "a":"⊝","b":"⊗","c":"⊡","d":"⊕","e":"⊛","f":"⊜","g":"⊟","h":"⊠","i":"⊡","j":"⊢",
+    "k":"⊣","l":"⊤","m":"⊥","n":"⊦","o":"⊧","p":"⊨","q":"⊩","r":"⊪","s":"⊫","t":"⊶",
+    "u":"⊭","v":"⊮","w":"⊯","x":"⊰","y":"⊱","z":"⊲",
+    // Números
+    "0":"⌖","1":"⊗","2":"⌬","3":"⋔","4":"⊠","5":"⊞","6":"⋉","7":"⊜","8":"⋈","9":"⊥",
+    // Puntuación
+    ".":"⊡",",":"⊙","!":"⊘","?":"⊝",":":"⊹",";":"⊷","-":"⊶","(":"❨",")":"❩","\"":"❝",
+    " ":" "
 };
 
-const inverso = {};
-for(let k in mapa){
-  inverso[mapa[k]] = k;
+// Crear mapa inverso automáticamente
+const mapaInverso = {};
+for(let key in mapa){
+    mapaInverso[mapa[key]] = key;
 }
 
-function traducir(){
-  const texto = document.getElementById("entrada").value;
-  const modo = document.getElementById("modo").value;
-  let resultado = "";
+function traducir() {
+    const modo = document.getElementById("modo").value;
+    const entrada = document.getElementById("entrada").value;
+    let resultado = "";
 
-  if(modo === "encode"){
-    for(let l of texto.toUpperCase()){
-      resultado += mapa[l] || l;
+    if(modo === "letterToCode") {
+        for(let char of entrada){
+            resultado += mapa[char] || char;
+        }
+    } else { // codeToLetter
+        let buffer = "";
+        for(let char of entrada){
+            buffer += char;
+            if(mapaInverso[buffer]){
+                resultado += mapaInverso[buffer];
+                buffer = "";
+            } else if(!Object.keys(mapaInverso).some(k => k.startsWith(buffer))){
+                // Si no coincide, deja el símbolo como está y limpia buffer
+                resultado += buffer;
+                buffer = "";
+            }
+        }
+        resultado += buffer; // cualquier sobrante
     }
-  } else {
-    for(let s of texto){
-      resultado += inverso[s] || "?";
-    }
-  }
-
-  document.getElementById("resultado").value = resultado;
+    document.getElementById("salida").value = resultado;
 }
-
 </script>
-
 </body>
 </html>
