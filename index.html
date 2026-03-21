@@ -2,109 +2,73 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor Alfabeto Electrónico</title>
+<title>Traductor Alfabeto de Símbolos</title>
 <style>
-    body {
-        font-family: monospace;
-        background-color: #0d0d0d;
-        color: #00ffcc;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-    }
-    textarea {
-        width: 90%;
-        max-width: 600px;
-        height: 120px;
-        margin: 10px 0;
-        font-size: 1.2em;
-        background-color: #111;
-        color: #00ffcc;
-        border: 1px solid #00ffcc;
-        padding: 10px;
-    }
-    select, button {
-        padding: 10px;
-        font-size: 1.1em;
-        margin: 5px;
-        cursor: pointer;
-    }
-    button {
-        background-color: #00ffcc;
-        color: #0d0d0d;
-        border: none;
-    }
-    button:hover {
-        background-color: #00ddb3;
-    }
-    #resultado {
-        font-size: 1.2em;
-        word-wrap: break-word;
-        max-width: 90%;
-        margin-top: 10px;
-        background-color: #111;
-        padding: 10px;
-        border: 1px solid #00ffcc;
-        min-height: 60px;
-    }
+  body { font-family: monospace; background: #000; color: #fff; padding: 20px; }
+  textarea { width: 100%; height: 150px; margin-bottom: 10px; font-size: 16px; background: #111; color: #fff; border: 1px solid #444; }
+  select, button { font-size: 16px; margin-right: 10px; }
 </style>
 </head>
 <body>
-<h2>Traductor Alfabeto Electrónico</h2>
-
-<textarea id="entrada" placeholder="Escribe o pega aquí tu texto o códigos"></textarea>
-<br>
-<select id="modo">
-    <option value="palabras-codigo">Palabras → Códigos</option>
-    <option value="codigo-palabras">Códigos → Palabras</option>
+<h2>Traductor Alfabeto de Símbolos</h2>
+<label for="direction">Dirección de traducción:</label>
+<select id="direction">
+  <option value="letters-to-symbols">Letras → Símbolos</option>
+  <option value="symbols-to-letters">Símbolos → Letras</option>
 </select>
-<button onclick="traducirTexto()">Traducir</button>
-
-<div id="resultado"></div>
+<br><br>
+<textarea id="input" placeholder="Introduce texto o símbolos aquí..."></textarea>
+<button onclick="translate()">Traducir</button>
+<textarea id="output" placeholder="Resultado" readonly></textarea>
 
 <script>
-const tabla = {
-    'A':'⊝','B':'⊗','C':'⊡','D':'⊕','E':'⊛','F':'⊤','G':'⊦','H':'⊣','I':'⊢','J':'⊤⊝',
-    'K':'⊡⊗','L':'⊕⊛','M':'⊗⊣','N':'⊡⊤','O':'⊝⊕','P':'⊛⊤','Q':'⊦⊗','R':'⊢⊝','S':'⊣⊡',
-    'T':'⊤⊗','U':'⊝⊣','V':'⊗⊡','W':'⊡⊕','X':'⊕⊗','Y':'⊗⊝','Z':'⊣⊗',
-    '0':'⊙','1':'⊚','2':'⊛⊗','3':'⊤⊡','4':'⊝⊢','5':'⊡⊣','6':'⊕⊢','7':'⊗⊤','8':'⊝⊤','9':'⊣⊕',
-    '.':'·',',':'‚','?':'¿','!':'¡',' ':' '
+// Definición del alfabeto de símbolos personalizado
+const letterToSymbol = {
+  A: "ׂ", B: "╰", C: "·", D: "「", E: "꒰", F: "✧", G: "₊", H: "｡", I: ":̗̀", 
+  J: "₊˚", K: "⊱", L: ".˚", M: "❥", N: "-ˋˏ", O: "⋆", P: "˚", Q: "↶", R: "⌦", 
+  S: "ೃ", T: "✎", U: "୨", V: "❥︎", W: "┊", X: "彡", Y: "﹏", Z: "┇",
+  a: "ꔛ", b: "⋆", c: "ꔚ", d: "ꕁ", e: "*ೃ", f: "·˚", g: "ʚ", h: "╏", i: "༊", j: "⌇", 
+  k: "❧", l: "⸜", m: "〰", n: "❦", o: "▓", p: "◦", q: "∅", r: "∘", s: "⊕", t: "⊘", 
+  u: "⊚", v: "⊛", w: "⊜", x: "⊝", y: "❍", z: "⦿",
+  "0":"•", "1":",", "2":"‣", "3":"?", "4":"❗", "5":":", "6":"⊹", "7":";", "8":"⊷", "9":"-",
+  " ":" ",
+  ".":"❨", ",":"❩", "?":"“", "!":"❝", ":":"”", ";":"❞", "-":"・"
 };
 
-// Crear la tabla inversa para traducir códigos → palabras
-const tablaInversa = {};
-for (let key in tabla) {
-    tablaInversa[tabla[key]] = key;
+// Generamos el diccionario inverso automáticamente
+const symbolToLetter = {};
+for (const [key, value] of Object.entries(letterToSymbol)) {
+  symbolToLetter[value] = key;
 }
 
-function traducirTexto() {
-    const texto = document.getElementById('entrada').value;
-    const modo = document.getElementById('modo').value;
-    let resultado = '';
+function translate() {
+  const input = document.getElementById("input").value;
+  const direction = document.getElementById("direction").value;
+  let output = "";
 
-    if (modo === 'palabras-codigo') {
-        for (let i = 0; i < texto.length; i++) {
-            const c = texto[i].toUpperCase();
-            resultado += tabla[c] || c;
-        }
-    } else { // código → palabras
-        let buffer = '';
-        for (let i = 0; i < texto.length; i++) {
-            buffer += texto[i];
-            if (tablaInversa[buffer]) {
-                resultado += tablaInversa[buffer];
-                buffer = '';
-            }
-        }
-        // Si queda algo que no coincide, se añade tal cual
-        if (buffer.length > 0) resultado += buffer;
+  if (direction === "letters-to-symbols") {
+    for (const char of input) {
+      output += letterToSymbol[char] || char;
     }
+  } else {
+    // Para symbols → letters, se puede traducir símbolo por símbolo
+    let buffer = "";
+    for (let i = 0; i < input.length; i++) {
+      buffer = input[i];
+      // Si es un símbolo compuesto, ajustar aquí según necesidad
+      output += symbolToLetter[buffer] || buffer;
+    }
+  }
 
-    document.getElementById('resultado').innerText = resultado;
+  document.getElementById("output").value = output;
 }
+
+// Frase de prueba (puedes pegar aquí la frase en símbolos)
+const pruebaTexto = "Estás traduciendo una forma de comunicación creada especialmente para personas privilegiadas. He creado un alfabeto cifrado para poder hacer posible un sistema de comunicación. Alchemytronic Archives realizará publicaciones con esta escritura y solo podrán traducir las informaciones los artistas que vallan colaborando en el proyecto. Próximamente más información...";
+
+// Convertimos la frase de prueba a símbolos
+document.getElementById("input").value = pruebaTexto;
+translate();
 </script>
 </body>
 </html>
