@@ -2,42 +2,67 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor a Alfabeto Electrónico</title>
+<title>Traductor Bidireccional Alfabeto Electrónico</title>
 <style>
-    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-    textarea { width: 90%; max-width: 600px; height: 100px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
-    button { padding: 10px 20px; font-size: 1.2em; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; margin-bottom: 10px; }
+    body { font-family: monospace; background-color: #0d0d0d; color: #00ffcc; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    textarea { width: 90%; max-width: 600px; height: 120px; margin: 10px 0; font-size: 1.2em; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; }
+    select { padding: 10px; font-size: 1.1em; margin: 5px; background-color: #111; color: #00ffcc; border: 1px solid #00ffcc; }
+    button { padding: 10px 20px; font-size: 1.2em; background-color: #00ffcc; color: #0d0d0d; border: none; cursor: pointer; margin: 5px; }
     button:hover { background-color: #00ddb3; }
-    #resultado { font-size: 1.4em; word-wrap: break-word; max-width: 90%; }
+    #resultado { font-size: 1.2em; word-wrap: break-word; max-width: 90%; margin-top: 10px; white-space: pre-wrap; }
 </style>
 </head>
 <body>
-
-<h2>Traductor a Alfabeto Electrónico</h2>
-
+<h2>Traductor Bidireccional Alfabeto Electrónico</h2>
 <textarea id="entrada" placeholder="Escribe o pega aquí tu texto"></textarea>
-<button onclick="traducirTexto()">Traducir</button>
+<div>
+    <select id="modo">
+        <option value="codificar">Palabras → Código</option>
+        <option value="decodificar">Código → Palabras</option>
+    </select>
+    <button onclick="traducir()">Traducir</button>
+</div>
 <div id="resultado"></div>
 
 <script>
-function traducirTexto() {
-    const tabla = {
-        'A':'⟡','B':'⌁','C':'⊚','D':'⌂','E':'⟢','F':'⊹','G':'⟣','H':'⊗','I':'⟂','J':'⌇',
-        'K':'⎝','L':'⎢','M':'⎚','N':'⎙','O':'⏣','P':'⎗','Q':'⍾','R':'⎘','S':'⌁̸','T':'⟟',
-        'U':'⊔','V':'⌵','W':'⊠','X':'⨳','Y':'⏁','Z':'⌆',
-        '0':'⊘','1':'⊱','2':'⊰','3':'⊲','4':'⊳','5':'⊴','6':'⊵','7':'⊶','8':'⊷','9':'⊸',
-        '.':'·',',':'‚','?':'⍰̸','!':'⍱̸','¿':'⍰','¡':'⍱',' ':' ',
-        'Á':'⟡','É':'⟢','Í':'⟂','Ó':'⏣','Ú':'⊔','Ñ':'⎙'
-    };
+// Tabla de codificación
+const tabla = {
+    'A':'⟡','B':'⌁','C':'⊚','D':'⌂','E':'⟢','F':'⊹','G':'⟣','H':'⊗','I':'⟂','J':'⌇',
+    'K':'⎝','L':'⎢','M':'⎚','N':'⎙','O':'⏣','P':'⎗','Q':'⍾','R':'⎘','S':'⌁̸','T':'⟟',
+    'U':'⊔','V':'⌵','W':'⊠','X':'⨳','Y':'⏁','Z':'⌆',
+    '0':'⊘','1':'⊱','2':'⊰','3':'⊲','4':'⊳','5':'⊴','6':'⊵','7':'⊶','8':'⊷','9':'⊸',
+    '.':'·',',':'‚','?':'⍰̸','!':'⍱̸','¿':'⍰','¡':'⍱',' ':' ',
+    'Á':'⟡','É':'⟢','Í':'⟂','Ó':'⏣','Ú':'⊔','Ñ':'⎙'
+};
+
+// Tabla inversa para decodificar automáticamente
+const tablaInversa = {};
+for (let letra in tabla) {
+    tablaInversa[tabla[letra]] = letra;
+}
+
+// Función de traducción
+function traducir() {
+    const modo = document.getElementById('modo').value;
     const texto = document.getElementById('entrada').value;
     let resultado = '';
-    for(let i=0;i<texto.length;i++){
-        const c = texto[i].toUpperCase();
-        resultado += tabla[c] || c;
+
+    if (modo === 'codificar') {
+        // De letras a código
+        for (let i = 0; i < texto.length; i++) {
+            const c = texto[i].toUpperCase();
+            resultado += tabla[c] || c;
+        }
+    } else if (modo === 'decodificar') {
+        // De código a letras
+        for (let i = 0; i < texto.length; i++) {
+            const c = texto[i];
+            resultado += tablaInversa[c] || c;
+        }
     }
+
     document.getElementById('resultado').innerText = resultado;
 }
 </script>
-
 </body>
 </html>
