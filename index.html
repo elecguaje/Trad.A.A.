@@ -4,66 +4,135 @@
 <meta charset="UTF-8">
 <title>Trad.A.A.</title>
 <style>
-body { font-family: monospace; background: #000; color: #fff; padding: 2rem; }
-h1 { text-align: center; }
-textarea { width: 100%; height: 150px; background: #111; color: #fff; border: 1px solid #555; padding: 0.5rem; font-size: 1rem; }
-select, button { padding: 0.5rem; font-size: 1rem; margin-top: 1rem; }
-.container { max-width: 800px; margin: auto; }
+  body {
+    margin: 0;
+    font-family: monospace;
+    background-color: #001a00; /* Fondo verde oscuro tipo Matrix */
+    color: #cccccc; /* Letras por defecto gris */
+  }
+  .container {
+    width: 90%;
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #003300; /* Fondo verde */
+    border-radius: 8px;
+  }
+  h1 {
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 20px;
+  }
+  textarea {
+    width: 100%;
+    height: 150px;
+    background-color: #001a00;
+    color: #ffffff;
+    font-size: 18px;
+    padding: 10px;
+    border: 2px solid #00ff00;
+    border-radius: 4px;
+    resize: vertical;
+  }
+  select, button {
+    font-size: 16px;
+    margin: 10px 0;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  button {
+    cursor: pointer;
+    background-color: #00ff00;
+    border: none;
+    color: #001a00;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>Trad.A.A.</h1>
-
-<textarea id="inputText" placeholder="Pega aquí tu código o texto..."></textarea>
-
-<br>
-<select id="modeSelect">
-  <option value="code2letter" selected>Códigos → Letras</option>
-  <option value="letter2code">Letras → Códigos</option>
-</select>
-<br>
-<button onclick="translate()">Traducir</button>
-
-<textarea id="outputText" placeholder="Resultado..." readonly></textarea>
+  <h1>Trad.A.A.</h1>
+  <select id="mode">
+    <option value="codeToLetter" selected>Códigos → Letras</option>
+    <option value="letterToCode">Letras → Códigos</option>
+  </select>
+  <textarea id="input" placeholder="Pega aquí tu texto o códigos..."></textarea>
+  <button onclick="translate()">Traducir</button>
+  <textarea id="output" placeholder="Traducción aparecerá aquí..." readonly></textarea>
 </div>
 
 <script>
-// Define alfabeto seguro
-const codeMap = {
-  "A":"⊕","B":"⊗","C":"⊖","D":"⊘","E":"⊙","F":"⊚","G":"⊛","H":"⊜","I":"⊝","J":"⊞",
-  "K":"◼","L":"◻","M":"◾","N":"◽","O":"◉","P":"◌","Q":"◍","R":"◦","S":"•","T":"‣",
-  "U":"❖","V":"❘","W":"❙","X":"❚","Y":"✦","Z":"✧",
-  "a":"⊕","b":"⊗","c":"⊖","d":"⊘","e":"⊙","f":"⊚","g":"⊛","h":"⊜","i":"⊝","j":"⊞",
-  "k":"◼","l":"◻","m":"◾","n":"◽","o":"◉","p":"◌","q":"◍","r":"◦","s":"•","t":"‣",
-  "u":"❖","v":"❘","w":"❙","x":"❚","y":"✦","z":"✧",
-  "0":"❯","1":"❮","2":"❬","3":"❭","4":"❪","5":"❫","6":"❬","7":"❭","8":"❪","9":"❫",
-  " ":" ", ".":"⊹", ",":"⊷", "?":"❓", "!":"❗", ":":"⊶", ";":"❘", "-":"-"
-};
+  // ALFABETO CIFRADO: símbolo único por letra, número y puntuación
+  const codeMap = {
+    "A": "•",
+    "B": "‣",
+    "C": "?",
+    "D": "❓",
+    "E": "!",
+    "F": "❗",
+    "G": ":",
+    "H": "⊹",
+    "I": ";",
+    "J": "⊷",
+    "K": "-",
+    "L": "⊶",
+    "M": "(",
+    "N": "❨",
+    "O": ")",
+    "P": "❩",
+    "Q": "“",
+    "R": "❝",
+    "S": "”",
+    "T": "❞",
+    "U": "•",
+    "V": "‣",
+    "W": "?",
+    "X": "❓",
+    "Y": "!",
+    "Z": "❗",
+    "0": "⊹",
+    "1": ";",
+    "2": "⊷",
+    "3": "-",
+    "4": "⊶",
+    "5": "(",
+    "6": "❨",
+    "7": ")",
+    "8": "❩",
+    "9": "“",
+    ".": "❝",
+    ",": "”",
+    "?": "❞",
+    "!": "•",
+    ":": "‣",
+    ";": "?",
+    "-": "❓",
+    " ": " "
+  };
 
-// Crea el mapa inverso
-const letterMap = {};
-for(let key in codeMap){
+  // Invertimos el mapa para decodificar
+  const letterMap = {};
+  for (let key in codeMap) {
     letterMap[codeMap[key]] = key;
-}
+  }
 
-function translate() {
-    const mode = document.getElementById('modeSelect').value;
-    const text = document.getElementById('inputText').value;
-    let result = "";
+  function translate() {
+    const input = document.getElementById("input").value;
+    const mode = document.getElementById("mode").value;
+    let output = "";
 
-    if(mode === "letter2code"){
-        for(let char of text){
-            result += codeMap[char] || char;
-        }
+    if (mode === "codeToLetter") {
+      for (let char of input) {
+        output += letterMap[char] || char;
+      }
     } else {
-        for(let char of text){
-            result += letterMap[char] || char;
-        }
+      for (let char of input.toUpperCase()) {
+        output += codeMap[char] || char;
+      }
     }
 
-    document.getElementById('outputText').value = result;
-}
+    document.getElementById("output").value = output;
+  }
 </script>
 </body>
 </html>
