@@ -1,0 +1,2 @@
+# Trad.A.A.
+Traductor
