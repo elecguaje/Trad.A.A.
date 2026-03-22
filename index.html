@@ -2,120 +2,90 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Trad.A.A.</title>
+<title>Traductor Cifrado A.A.</title>
+
 <style>
-  body {
-    background-color: #003300; /* verde oscuro estilo Matrix */
-    color: #ccc; /* letras grises en el área vacía */
-    font-family: monospace;
-    padding: 20px;
-  }
-  h1 { color: #0f0; }
-  textarea {
-    width: 100%;
-    height: 150px;
-    background-color: #003300;
-    color: #ccc;
-    font-family: monospace;
-    font-size: 16px;
-    border: 1px solid #0f0;
+body {
+    background: black;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+    padding: 30px;
+}
+
+textarea {
+    width: 80%;
+    height: 120px;
+    margin: 10px;
+    background: #111;
+    color: white;
+    border: 1px solid #444;
     padding: 10px;
-  }
-  #output {
-    width: 100%;
-    height: 150px;
-    background-color: #003300;
-    color: #fff;
-    font-family: monospace;
-    font-size: 16px;
-    border: 1px solid #0f0;
-    padding: 10px;
-    margin-top: 10px;
-    white-space: pre-wrap;
-  }
-  .tab {
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    background: white;
+    border: none;
     cursor: pointer;
-    display: inline-block;
-    padding: 5px 15px;
-    background-color: #0f0;
-    color: #003300;
-    font-weight: bold;
-    margin-right: 5px;
-  }
-  .active {
-    background-color: #00ff00;
-    color: #000;
-  }
+}
 </style>
+
 </head>
 <body>
 
-<h1>Trad.A.A.</h1>
+<h1>Traductor Cifrado A.A. (Nivel PRO)</h1>
 
-<div>
-  <span class="tab active" id="tabCodeToText">Códigos → Letras</span>
-  <span class="tab" id="tabTextToCode">Letras → Códigos</span>
-</div>
+<textarea id="input" placeholder="Escribe texto o código..."></textarea><br>
 
-<textarea id="inputArea" placeholder="Pega aquí tus códigos o letras..."></textarea>
-<button onclick="translate()">Traducir</button>
+<button onclick="cifrar()">Cifrar →</button>
+<button onclick="descifrar()">← Descifrar</button>
 
-<div id="output"></div>
+<textarea id="output" placeholder="Resultado..."></textarea>
 
 <script>
-  // MAPA DE CIFRADO: símbolo ↔ letra
-  const codeMap = {
-    '⍣':'a', '✧':'b', '⊕':'c', '⊗':'d', '⊛':'e', '⊜':'f', '⊝':'g', '⊞':'h', '⊟':'i',
-    '⊠':'j', '⊡':'k', '⊢':'l', '⊣':'m', '⊤':'n', '⊥':'o', '⊦':'p', '⊧':'q', '⊨':'r',
-    '⊩':'s', '⊪':'t', '⊫':'u', '⊬':'v', '⊭':'w', '⊮':'x', '⊯':'y', '⊰':'z',
-    '•':' ', ',':'⸱', '?':'⁇', '!':'‼', ':':'⊹', ';':'⊷', '-':'⊶', '(':'❨', ')':'❩',
-    '0':'❶','1':'❷','2':'❸','3':'❹','4':'❺','5':'❻','6':'❼','7':'❽','8':'❾','9':'❿'
-  };
 
-  let currentMode = 'codeToText'; // por defecto
+// CIFRADO NO RECONOCIBLE (2 símbolos por letra)
+const mapa = {
+a:"§∆", b:"¶Ω", c:"♣¤", d:"♠¥", e:"★µ",
+f:"☯π", g:"☢ß", h:"☣¶", i:"♛∆", j:"♜Ω",
+k:"♞¤", l:"♟¥", m:"✦µ", n:"✧π", o:"✩ß",
+p:"✪¶", q:"✫∆", r:"✬Ω", s:"✭¤", t:"✮¥",
+u:"✯µ", v:"✰π", w:"✱ß", x:"✲¶", y:"✳∆",
+z:"✴Ω", " ":"00"
+};
 
-  document.getElementById('tabCodeToText').addEventListener('click', function() {
-    currentMode = 'codeToText';
-    this.classList.add('active');
-    document.getElementById('tabTextToCode').classList.remove('active');
-    document.getElementById('output').innerText = '';
-  });
+// mapa inverso
+const mapaInverso = {};
+for (let letra in mapa) {
+    mapaInverso[mapa[letra]] = letra;
+}
 
-  document.getElementById('tabTextToCode').addEventListener('click', function() {
-    currentMode = 'textToCode';
-    this.classList.add('active');
-    document.getElementById('tabCodeToText').classList.remove('active');
-    document.getElementById('output').innerText = '';
-  });
+function cifrar() {
+    let texto = document.getElementById("input").value.toLowerCase();
+    let resultado = "";
 
-  function translate() {
-    const input = document.getElementById('inputArea').value;
-    let output = '';
-
-    if (currentMode === 'codeToText') {
-      for (let char of input) {
-        if (codeMap[char]) {
-          output += codeMap[char];
-        } else {
-          output += char; // deja lo que no esté en el mapa
-        }
-      }
-    } else { // textToCode
-      const reverseMap = {};
-      for (let key in codeMap) {
-        reverseMap[codeMap[key]] = key;
-      }
-      for (let char of input.toLowerCase()) {
-        if (reverseMap[char]) {
-          output += reverseMap[char];
-        } else {
-          output += char;
-        }
-      }
+    for (let char of texto) {
+        resultado += mapa[char] || char;
     }
 
-    document.getElementById('output').innerText = output;
-  }
+    document.getElementById("output").value = resultado;
+}
+
+function descifrar() {
+    let texto = document.getElementById("input").value;
+    let resultado = "";
+
+    // leer de 2 en 2
+    for (let i = 0; i < texto.length; i += 2) {
+        let bloque = texto.substring(i, i + 2);
+        resultado += mapaInverso[bloque] || "?";
+    }
+
+    document.getElementById("output").value = resultado;
+}
+
 </script>
 
 </body>
