@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Traductor Cifrado A.A.</title>
+<title>Traductor A.A.</title>
 
 <style>
 body {
@@ -12,7 +12,6 @@ body {
     text-align: center;
     padding: 30px;
 }
-
 textarea {
     width: 80%;
     height: 120px;
@@ -22,7 +21,6 @@ textarea {
     border: 1px solid #444;
     padding: 10px;
 }
-
 button {
     padding: 10px 20px;
     margin: 10px;
@@ -31,32 +29,31 @@ button {
     cursor: pointer;
 }
 </style>
-
 </head>
+
 <body>
 
-<h1>Traductor Cifrado A.A. (Nivel PRO)</h1>
+<h1>Traductor Cifrado A.A.</h1>
 
-<textarea id="input" placeholder="Escribe texto o código..."></textarea><br>
+<textarea id="input"></textarea><br>
 
 <button onclick="cifrar()">Cifrar →</button>
 <button onclick="descifrar()">← Descifrar</button>
 
-<textarea id="output" placeholder="Resultado..."></textarea>
+<textarea id="output"></textarea>
 
 <script>
 
-// CIFRADO NO RECONOCIBLE (2 símbolos por letra)
+// CIFRADO SEGURO (sin símbolos raros)
 const mapa = {
-a:"§∆", b:"¶Ω", c:"♣¤", d:"♠¥", e:"★µ",
-f:"☯π", g:"☢ß", h:"☣¶", i:"♛∆", j:"♜Ω",
-k:"♞¤", l:"♟¥", m:"✦µ", n:"✧π", o:"✩ß",
-p:"✪¶", q:"✫∆", r:"✬Ω", s:"✭¤", t:"✮¥",
-u:"✯µ", v:"✰π", w:"✱ß", x:"✲¶", y:"✳∆",
-z:"✴Ω", " ":"00"
+a:"k1", b:"x9", c:"p3", d:"m7", e:"q2",
+f:"z8", g:"t4", h:"r6", i:"n5", j:"v0",
+k:"y1", l:"u2", m:"b3", n:"c4", o:"d5",
+p:"e6", q:"f7", r:"g8", s:"h9", t:"i0",
+u:"j1", v:"l2", w:"o3", x:"s4", y:"w5",
+z:"a6", " ":"00"
 };
 
-// mapa inverso
 const mapaInverso = {};
 for (let letra in mapa) {
     mapaInverso[mapa[letra]] = letra;
@@ -66,7 +63,8 @@ function cifrar() {
     let texto = document.getElementById("input").value.toLowerCase();
     let resultado = "";
 
-    for (let char of texto) {
+    for (let i = 0; i < texto.length; i++) {
+        let char = texto[i];
         resultado += mapa[char] || char;
     }
 
@@ -77,7 +75,6 @@ function descifrar() {
     let texto = document.getElementById("input").value;
     let resultado = "";
 
-    // leer de 2 en 2
     for (let i = 0; i < texto.length; i += 2) {
         let bloque = texto.substring(i, i + 2);
         resultado += mapaInverso[bloque] || "?";
